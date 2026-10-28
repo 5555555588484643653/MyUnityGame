@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECLIPSE - Басты Мәзір (Main Menu)</title>
+  <meta name="description" content="Eclipse dark fantasy roguelike ойынының интерактивті басты мәзірі. Толық қазақ тіліндегі баптаулар, руналар және арена аймақтары.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Аудио синтезаторды іске қосуға арналған дыбыс түймесі -->
+  <button id="soundToggleBtn" class="sound-toggle-btn" title="Дыбысты қосу/өшіру">
+    <span id="soundIcon">🔊</span>
+  </button>
+
+  <!-- Бөлшектер мен сиқырлы әсерлер кенебі -->
+  <canvas id="fxCanvas"></canvas>
+
+  <div class="menu-container">
+    <!-- Артқы фондық сурет -->
+    <div class="background-wrapper">
+      <img src="Eclipse_Menu_Background.jpg" alt="Eclipse Background" id="bgImage" class="bg-image">
+      <div class="moon-glow"></div>
+      <div class="vignette-overlay"></div>
+    </div>
+
+    <!-- Төбедегі логотип -->
+    <header class="title-header">
+      <h1 class="game-title">ECLIPSE</h1>
+      <p class="game-subtitle">ҚАРАҢҒЫЛЫҚ ПЕН РУНАЛАР ШАЙҚАСЫ</p>
+    </header>
+
+    <!-- СОЛ ЖАҚ МӘЗІР БАТЫРМАЛАРЫ -->
+    <nav class="left-nav" aria-label="Басты мәзір">
+      <button id="btnRunSim" class="stone-btn primary-btn" data-action="run-sim">
+        <span class="btn-rune">ᚱ</span>
+        <span class="btn-text">СИМУЛЯЦИЯНЫ БАСТАУ</span>
+        <span class="btn-glow"></span>
+      </button>
+
+      <button id="btnLoadProgress" class="stone-btn" data-action="load-progress">
+        <span class="btn-rune">ᛒ</span>
+        <span class="btn-text">ПРОГРЕСТІ ЖҮКТЕУ</span>
+        <span class="btn-glow"></span>
+      </button>
+
+      <button id="btnSettings" class="stone-btn" data-action="settings">
+        <span class="btn-rune">ᛊ</span>
+        <span class="btn-text">БАПТАУЛАР</span>
+        <span class="btn-glow"></span>
+      </button>
+
+      <button id="btnQuit" class="stone-btn quit-btn" data-action="quit">
+        <span class="btn-rune">ᛟ</span>
+        <span class="btn-text">ОЙЫННАН ШЫҒУ</span>
+        <span class="btn-glow"></span>
+      </button>
+
+      <!-- Төменгі сол жақ - Scope / Жол картасы -->
+      <div id="scopePanel" class="scope-panel" title="Толық жол картасын көру үшін басыңыз">
+        <div class="scope-header">
+          <span class="scope-tag">КЕЗЕҢ: MVP RUN PROTOCOL 1-4</span>
+        </div>
+        <ul class="scope-list">
+          <li class="active-week"><span class="week-badge">1-АПТА</span> Негізгі ұрыс және Гоблиндер</li>
+          <li><span class="week-badge">2-АПТА</span> Қозғалыс механикасы мен Әрекеттер</li>
+          <li><span class="week-badge">3-АПТА</span> Жаңа жаулар мен Марапат жүйесі</li>
+          <li><span class="week-badge">4-АПТА</span> Соңғы шайқас және Прогресс</li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- ОРТАЛЫҚ АРЕНА ИНТЕРАКТИВТІ АЙМАҚТАРЫ (HOTSPOTS) -->
+    <div class="arena-hotspots-container">
+      <!-- 1. Ойыншы бастау алаңы (Center) -->
+      <div id="spotPlayer" class="arena-hotspot spot-player" data-target="player">
+        <div class="hotspot-pulse player-pulse"></div>
+        <div class="hotspot-label">Батыр Аренасы</div>
+      </div>
+
+      <!-- 2. Басты Аймақ (Main Area) -->
+      <div id="spotMainArea" class="arena-hotspot spot-main" data-target="main-area">
+        <div class="hotspot-pulse"></div>
+        <div class="hotspot-label">Басты Аймақ</div>
+      </div>
+
+      <!-- 3. Жақыннан шабуылдайтын гоблиндер (Melee) -->
+      <div id="spotMelee" class="arena-hotspot spot-melee" data-target="melee">
+        <div class="hotspot-pulse goblin-pulse"></div>
+        <div class="hotspot-label">Қанқұмар Гоблиндер</div>
+      </div>
+
+      <!-- 4. Алыстан шабуылдайтын гоблиндер (Ranged) -->
+      <div id="spotRanged" class="arena-hotspot spot-ranged" data-target="ranged">
+        <div class="hotspot-pulse goblin-pulse"></div>
+        <div class="hotspot-label">Мерген Гоблиндер</div>
+      </div>
+
+      <!-- 5. Гоблиндер Патшасы (Boss Goblins Patshasy) -->
+      <div id="spotBoss" class="arena-hotspot spot-boss" data-target="boss">
+        <div class="hotspot-pulse boss-pulse"></div>
+        <div class="hotspot-label">Гоблиндер Патшасы</div>
+      </div>
+
+      <!-- 6. Элиталық Гоблин (Mini Boss) -->
+      <div id="spotElite" class="arena-hotspot spot-elite" data-target="elite">
+        <div class="hotspot-pulse elite-pulse"></div>
+        <div class="hotspot-label">Элиталық Гоблин</div>
+      </div>
+    </div>
+
+    <!-- ТӨМЕНГІ ОРТАЛЫҚ ҚАРУ-ЖАРАҚ СЛОТТАРЫ [1] [2] [3] [4] -->
+    <div class="bottom-slots-bar" aria-label="Жауынгерлік слоттар">
+      <div class="slot-item" data-slot="1" title="1-слот: Қараңғы Қылыш">
+        <span class="slot-number">1</span>
+        <span class="slot-icon">⚔️</span>
+        <span class="slot-name">Қылыш</span>
+      </div>
+      <div class="slot-item" data-slot="2" title="2-слот: Отты Шар">
+        <span class="slot-number">2</span>
+        <span class="slot-icon">🔥</span>
+        <span class="slot-name">Отты Шар</span>
+      </div>
+      <div class="slot-item" data-slot="3" title="3-слот: Мұз Қалқаны">
+        <span class="slot-number">3</span>
+        <span class="slot-icon">❄️</span>
+        <span class="slot-name">Мұз Қалқаны</span>
+      </div>
+      <div class="slot-item" data-slot="4" title="4-слот: Өлім Орағы">
+        <span class="slot-number">4</span>
+        <span class="slot-icon">🩸</span>
+        <span class="slot-name">Өлім Орағы</span>
+      </div>
+    </div>
+
+    <!-- ОҢ ЖАҚ: ЕЖЕЛГІ ТАС ТАҚТА - РУНАЛЫҚ АЛХИМИЯ МАТРИЦАСЫ -->
+    <aside class="right-monolith" aria-label="Руналық матрица">
+      <div class="monolith-header">
+        <div class="monolith-runes">ᚠ ᛏ ᛚ ᛉ ᛊ ᚦ ᚢ ᚱ</div>
+        <h2 class="monolith-title">РУНАЛЫҚ СИНТЕЗ</h2>
+      </div>
+
+      <div class="matrix-grid">
+        <!-- Жоғарғы Негізгі 3 Элемент -->
+        <div class="elements-tier">
+          <div id="runeFire" class="rune-card rune-fire" data-rune="fire">
+            <div class="rune-symbol">🔥</div>
+            <span class="rune-name">ОТ</span>
+            <span class="rune-bonus">+15% Зақым</span>
+          </div>
+
+          <div id="runeWater" class="rune-card rune-water" data-rune="water">
+            <div class="rune-symbol">❄️</div>
+            <span class="rune-name">СУ / МҰЗ</span>
+            <span class="rune-bonus">-25% Жылдамдық</span>
+          </div>
+
+          <div id="runeNature" class="rune-card rune-nature" data-rune="nature">
+            <div class="rune-symbol">🛡️</div>
+            <span class="rune-name">ТАБИҒАТ</span>
+            <span class="rune-bonus">+30 Қалқан</span>
+          </div>
+        </div>
+
+        <!-- Байланыстырушы сызықтар -->
+        <div class="matrix-connectors">
+          <div class="connector-line line-1"></div>
+          <div class="connector-line line-2"></div>
+          <div class="connector-line line-3"></div>
+        </div>
+
+        <!-- Төменгі 3 Біріккен Сиқыр (Fusions) -->
+        <div class="fusions-tier">
+          <div id="runeVoid" class="fusion-card fusion-void" data-fusion="void">
+            <div class="fusion-glow"></div>
+            <div class="fusion-icon">🌌</div>
+            <span class="fusion-name">Void Strike</span>
+            <span class="fusion-desc">Бос кеңістік соққысы</span>
+          </div>
+
+          <div id="runeBlood" class="fusion-card fusion-blood" data-fusion="blood">
+            <div class="fusion-glow"></div>
+            <div class="fusion-icon">🩸</div>
+            <span class="fusion-name">Blood Harvest</span>
+            <span class="fusion-desc">Қанды орақ (Lifesteal)</span>
+          </div>
+
+          <div id="runeSoul" class="fusion-card fusion-soul" data-fusion="soul">
+            <div class="fusion-glow"></div>
+            <div class="fusion-icon">✨</div>
+            <span class="fusion-name">Soul Siphon</span>
+            <span class="fusion-desc">Жан сіңіру (Stun)</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ЖҮКТЕЛГЕН КҮЙДЕГІ ИНСПЕКТОР / ҚАЛҚЫМАЛЫ ТҮСІНДІРМЕ (TOOLTIP) -->
+  <div id="tooltip" class="floating-tooltip">
+    <div id="tooltipTitle" class="tooltip-title">Аймақ атауы</div>
+    <div id="tooltipDesc" class="tooltip-desc">Сипаттамасы</div>
+    <div id="tooltipStats" class="tooltip-stats">Статистикасы</div>
+  </div>
+
+  <!-- МОДАЛЬДІ ТЕРЕЗЕЛЕР ЖҮЙЕСІ (POPUPS) -->
+  <div id="modalBackdrop" class="modal-backdrop">
+    <!-- 1. БАПТАУЛАР МОДАЛІ -->
+    <div id="modalSettings" class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title">⚙️ ОЙЫН БАПТАУЛАРЫ</h3>
+        <button class="modal-close-btn" data-close="modalSettings">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="setting-group">
+          <label for="masterVolume">Жалпы дыбыс деңгейі (Master Volume): <span id="masterVolVal">80%</span></label>
+          <input type="range" id="masterVolume" min="0" max="100" value="80" class="game-slider">
+        </div>
+
+        <div class="setting-group">
+          <label for="sfxVolume">Эффектілер дыбысы (SFX): <span id="sfxVolVal">90%</span></label>
+          <input type="range" id="sfxVolume" min="0" max="100" value="90" class="game-slider">
+        </div>
+
+        <div class="setting-group">
+          <label for="musicVolume">Музыка дыбысы (Music): <span id="musicVolVal">70%</span></label>
+          <input type="range" id="musicVolume" min="0" max="100" value="70" class="game-slider">
+        </div>
+
+        <div class="setting-row">
+          <span>Толық экран режимі (Fullscreen):</span>
+          <button id="toggleFullscreen" class="toggle-btn active">ҚОСУЛЫ</button>
+        </div>
+
+        <div class="setting-row">
+          <span>Графика сапасы:</span>
+          <select id="graphicsQuality" class="game-select">
+            <option value="ultra" selected>УЛЬТРА (Ultra 60FPS)</option>
+            <option value="high">ЖОҒАРЫ (High)</option>
+            <option value="medium">ОРТАША (Medium)</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <span>Ойын тілі:</span>
+          <span class="active-language">🇰🇿 Қазақ тілі (Таңдалған)</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="action-btn save-btn" data-close="modalSettings">САҚТАУ ЖӘНЕ ЖАБУ</button>
+      </div>
+    </div>
+
+    <!-- 2. ПРОГРЕСТІ ЖҮКТЕУ МОДАЛІ -->
+    <div id="modalLoadProgress" class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title">💾 ПРОГРЕСТІ ЖҮКТЕУ</h3>
+        <button class="modal-close-btn" data-close="modalLoadProgress">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-subtitle">Жалғастыру үшін сақталған слотты таңдаңыз:</p>
+        <div class="save-slots-list">
+          <div class="save-slot-card selected" data-save="1">
+            <div class="slot-badge">СЛОТ 1 [НЕГІЗГІ]</div>
+            <div class="slot-details">
+              <strong>Қараңғы Батыр - 5-Деңгей</strong>
+              <div class="slot-sub">Тірі қалған уақыт: 14 мин 20 сек | 2,450 Алтын | 8 Руна</div>
+            </div>
+            <span class="slot-check">✓</span>
+          </div>
+
+          <div class="save-slot-card" data-save="2">
+            <div class="slot-badge">СЛОТ 2</div>
+            <div class="slot-details">
+              <strong>Қараңғы Батыр - 2-Деңгей</strong>
+              <div class="slot-sub">Тірі қалған уақыт: 05 мин 12 сек | 680 Алтын | 3 Руна</div>
+            </div>
+            <span class="slot-check"></span>
+          </div>
+
+          <div class="save-slot-card empty" data-save="3">
+            <div class="slot-badge">СЛОТ 3</div>
+            <div class="slot-details">
+              <strong>[Бос слот - Жаңа Ойын]</strong>
+              <div class="slot-sub">Жаңа шытырман оқиғаны нөлден бастау</div>
+            </div>
+            <span class="slot-check"></span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnLoadSelectedSave" class="action-btn primary-btn">ОЙЫНДЫ ЖҮКТЕУ ЖӘНЕ БАСТАУ</button>
+      </div>
+    </div>
+
+    <!-- 3. ОЙЫННАН ШЫҒУ МОДАЛІ -->
+    <div id="modalQuit" class="modal-window quit-modal">
+      <div class="modal-header">
+        <h3 class="modal-title">⚠️ ОЙЫННАН ШЫҒУ</h3>
+        <button class="modal-close-btn" data-close="modalQuit">✕</button>
+      </div>
+      <div class="modal-body text-center">
+        <p class="quit-text">Ойыннан шығуға сенімдісіз бе?</p>
+        <p class="quit-sub">Барлық ағымдағы сақталмаған деректер жоғалуы мүмкін.</p>
+      </div>
+      <div class="modal-footer button-row">
+        <button id="btnConfirmQuit" class="action-btn danger-btn">ИӘ, ШЫҒУ</button>
+        <button class="action-btn cancel-btn" data-close="modalQuit">ЖОҚ, ОРАЛУ</button>
+      </div>
+    </div>
+
+    <!-- 4. ТОЛЫҚ АҚПАРАТ МОДАЛІ (АРЕНА ЖӘНЕ РУНАЛАР) -->
+    <div id="modalInfo" class="modal-window info-modal">
+      <div class="modal-header">
+        <h3 id="infoModalTitle" class="modal-title">АҚПАРАТ</h3>
+        <button class="modal-close-btn" data-close="modalInfo">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="infoModalBody" class="info-modal-desc">Толық ақпарат мәтіні</div>
+        <div class="info-stats-box">
+          <span class="stats-label">📊 Жауынгерлік параметрлер:</span>
+          <p id="infoModalStats" class="stats-text">Параметрлер</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="action-btn primary-btn" data-close="modalInfo">ТҮСІНІКТІ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- СИМУЛЯЦИЯНЫ ҚОСУ ЭКРАНЫ (LAUNCH OVERLAY) -->
+  <div id="simulationOverlay" class="simulation-overlay">
+    <div class="simulation-content">
+      <div class="simulation-spinner"></div>
+      <h2 class="sim-title">СИМУЛЯЦИЯ ДАЙЫНДАЛУДА...</h2>
+      <p class="sim-status">Арена генерациясы: Гоблиндер орналасуда, руналар оянуда...</p>
+      <div class="sim-progress-bar">
+        <div id="simProgressFill" class="sim-progress-fill"></div>
+      </div>
+      <div id="simPercent" class="sim-percent">0%</div>
+      <button id="btnCancelSim" class="action-btn cancel-btn">ТОҚТАТУ</button>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
