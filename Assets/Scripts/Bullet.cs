@@ -3,7 +3,7 @@
 public class Bullet : MonoBehaviour
 {
     public float speed = 10f;
-    public GameObject xpPrefab; // XP шаблонын салатын орын
+    public int damage = 100;
     private Vector3 targetDir;
 
     public void Setup(Vector3 direction)
@@ -19,15 +19,10 @@ public class Bullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Enemy"))
+        RangedEnemy enemy = collision.GetComponentInParent<RangedEnemy>();
+        if (enemy != null)
         {
-            // Жаудың дәл сол тұрған орнына XP кристалын шығару
-            if (xpPrefab != null)
-            {
-                Instantiate(xpPrefab, collision.transform.position, Quaternion.identity);
-            }
-
-            Destroy(collision.gameObject);
+            enemy.TakeDamage(damage);
             Destroy(gameObject);
         }
     }

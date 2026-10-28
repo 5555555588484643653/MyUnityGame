@@ -144,7 +144,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Bullet
   speed: 10
-  xpPrefab: {fileID: 703881816283707383, guid: c42320d8f354f1345bf5a76a7c5b790e, type: 3}
+  damage: 100
 --- !u!50 &-1870247707805114888
 Rigidbody2D:
   serializedVersion: 5

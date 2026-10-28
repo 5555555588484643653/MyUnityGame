@@ -1,46 +1,62 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerAttack : MonoBehaviour
 {
-    [SerializeField] private GameObject bulletPrefab;
-    [SerializeField] private float fireRate = 1f; // Секундына 1 рет атады
+    [Header("Attack Settings")]
+    [SerializeField] private GameObject bulletPrefab; // Оқтың префабы (Bullet)
+    [SerializeField, Min(0f)] private float fireRate = 0.005f;
     private float nextFireTime;
 
     private void Update()
     {
-        if (Time.time >= nextFireTime)
+        if (Mouse.current != null &&
+            Mouse.current.leftButton.wasPressedThisFrame &&
+            Time.time >= nextFireTime)
         {
-            ShootClosestEnemy();
+            ShootAtMousePosition();
             nextFireTime = Time.time + fireRate;
         }
     }
 
-    private void ShootClosestEnemy()
+    private void ShootAtMousePosition()
     {
-        // "Enemy" тегі бар барлық жауларды табады
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        if (enemies.Length == 0) return;
-
-        GameObject closestEnemy = null;
-        float shortestDistance = Mathf.Infinity;
-
-        // Ең жақын жауды анықтау
-        foreach (GameObject enemy in enemies)
+        if (bulletPrefab == null)
         {
-            float distance = Vector2.Distance(transform.position, enemy.transform.position);
-            if (distance < shortestDistance)
-            {
-                shortestDistance = distance;
-                closestEnemy = enemy;
-            }
+            Debug.LogError("PlayerAttack: Inspector-да Bullet Prefab салынбаған!");
+            return;
         }
 
-        // Егер жау табылса, оқ шығару
-        if (closestEnemy != null)
+        Camera mainCam = Camera.main;
+        if (mainCam == null)
         {
-            GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
-            Vector3 direction = (closestEnemy.transform.position - transform.position).normalized;
-            bullet.GetComponent<Bullet>().Setup(direction);
+            Debug.LogError("Main Camera табылмады! Камераның Tag-ін 'MainCamera' деп қойыңыз.");
+            return;
+        }
+
+        Ray mouseRay = mainCam.ScreenPointToRay(Mouse.current.position.ReadValue());
+        Plane playerPlane = new Plane(Vector3.forward, transform.position);
+        if (!playerPlane.Raycast(mouseRay, out float distance))
+        {
+            return;
+        }
+
+        Vector3 direction = (mouseRay.GetPoint(distance) - transform.position).normalized;
+        if (direction.sqrMagnitude == 0f)
+        {
+            return;
+        }
+
+        GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+        Bullet bulletScript = bullet.GetComponent<Bullet>();
+        if (bulletScript != null)
+        {
+            bulletScript.Setup(direction);
+        }
+        else
+        {
+            Debug.LogError("PlayerAttack: Bullet Prefab ішінде Bullet скрипті жоқ!");
+            Destroy(bullet);
         }
     }
 }

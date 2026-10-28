@@ -3,12 +3,21 @@
 public class EnemyBullet : MonoBehaviour
 {
     public float speed = 5f;
+    [Min(1)] public int damage = 10;
     private Vector2 targetPosition;
 
     void Start()
     {
         // Оқ атылған кезде ойыншының тұрған жерін есте сақтап, сол жаққа қарай ұшады
-        Transform player = GameObject.Find("Player").transform;
+        GameObject playerObject = GameObject.Find("Player");
+        if (playerObject == null)
+        {
+            Debug.LogError("EnemyBullet: Player табылмады.");
+            Destroy(gameObject);
+            return;
+        }
+
+        Transform player = playerObject.transform;
         targetPosition = new Vector2(player.position.x, player.position.y);
     }
 
@@ -25,9 +34,10 @@ public class EnemyBullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.name == "Player")
+        PlayerStats playerStats = collision.GetComponentInParent<PlayerStats>();
+        if (playerStats != null)
         {
-            Debug.Log("Ойыншыға оқ тиді! Өмір азайды.");
+            playerStats.TakeDamage(damage);
             Destroy(gameObject);
         }
     }
