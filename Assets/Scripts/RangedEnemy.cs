@@ -1,25 +1,29 @@
-﻿using UnityEngine;
+using System.Collections;
+using UnityEngine;
 
 public class RangedEnemy : MonoBehaviour
 {
-    [Header("Movement & Attack")]
+    [Header("Қозғалыс және Шабуыл")]
     public float speed = 2f;
-    public float stoppingDistance = 5f; // Осы қашықтыққа келгенде тоқтайды
-    public GameObject enemyBulletPrefab; // Жаудың оғы
-    public float fireRate = 2f; // Әр 2 секунд сайын атады
+    public float stoppingDistance = 5f;
+    public GameObject enemyBulletPrefab;
+    public float fireRate = 2f;
 
-    [Header("Enemy Health")]
-    public int maxHealth = 100; // Зомбидің HP-і (бірден өліп қалмауы үшін)
+    [Header("Денсаулық")]
+    public int maxHealth = 70;
     private int currentHealth;
-
     private float nextFireTime;
     private Transform player;
+    private SpriteRenderer sr;
+    private Color originalColor;
+    private bool isDead = false;
 
-    void Start()
+    private void Start()
     {
         currentHealth = maxHealth;
+        sr = GetComponent<SpriteRenderer>();
+        if (sr != null) originalColor = sr.color;
 
-        // Ойыншыны табу (аты немесе тегі арқылы)
         GameObject playerObj = GameObject.Find("Player");
         if (playerObj != null)
         {
@@ -27,30 +31,35 @@ public class RangedEnemy : MonoBehaviour
         }
     }
 
-    void Update()
+    private void Update()
     {
+        if (isDead) return;
+
         if (player != null)
         {
             float distance = Vector2.Distance(transform.position, player.position);
 
             if (distance > stoppingDistance)
             {
-                // Егер алыс болса, ойыншыға қарай жүру
                 transform.position = Vector2.MoveTowards(transform.position, player.position, speed * Time.deltaTime);
             }
             else
             {
-                // Тоқтап, ату
                 if (Time.time > nextFireTime)
                 {
                     Shoot();
                     nextFireTime = Time.time + fireRate;
                 }
             }
+
+            if (sr != null)
+            {
+                sr.flipX = player.position.x < transform.position.x;
+            }
         }
     }
 
-    void Shoot()
+    private void Shoot()
     {
         if (enemyBulletPrefab != null)
         {
@@ -58,11 +67,18 @@ public class RangedEnemy : MonoBehaviour
         }
     }
 
-    // Ойыншы соққы жасағанда шақырылатын функция
     public void TakeDamage(int damageAmount)
     {
-        currentHealth -= damageAmount;
-        Debug.Log("Алыстан ататын зомби соққы алды! Қалған HP: " + currentHealth);
+        if (isDead) return;
+
+        bool isCrit = Random.value < 0.25f;
+        int finalDamage = isCrit ? (int)(damageAmount * 1.8f) : damageAmount;
+
+        currentHealth -= finalDamage;
+        DamagePopup.Create(transform.position, finalDamage, isCrit);
+        CameraFollow.Shake(0.08f, 0.1f);
+
+        StartCoroutine(FlashWhiteRoutine());
 
         if (currentHealth <= 0)
         {
@@ -70,16 +86,26 @@ public class RangedEnemy : MonoBehaviour
         }
     }
 
-    void Die()
+    private IEnumerator FlashWhiteRoutine()
     {
-        // Өлген кезде ойыншыға XP беру
-        if (player != null)
+        if (sr != null)
         {
-PlayerStats playerXP = player.GetComponent<PlayerStats>();
-if (playerXP != null)
-{
-    playerXP.AddXP(25); // Или вызывайте соответствующий метод из PlayerStats
-}
+            sr.color = Color.white;
+            yield return new WaitForSeconds(0.08f);
+            if (sr != null) sr.color = originalColor;
+        }
+    }
+
+    private void Die()
+    {
+        if (isDead) return;
+        isDead = true;
+
+        PlayerStats stats = FindAnyObjectByType<PlayerStats>();
+        if (stats != null)
+        {
+            stats.RegisterKill();
+            stats.AddXP(30);
         }
 
         Destroy(gameObject);

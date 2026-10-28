@@ -9,7 +9,8 @@ using TMPro;
 
 /// <summary>
 /// Eclipse ойынының басты мәзірі (Main Menu Controller).
-/// Барлық батырмалар, интерактивті аймақтар, баптаулар және руналар жүйесі осы жерде жұмыс істейді.
+/// Барлық батырмалар табиғи тас плиталардың үстіне тұнық әрі анық орналасқан.
+/// Ешқандай артық қарайған қораптарсыз, таза және сочный визуал!
 /// </summary>
 public class MainMenu : MonoBehaviour
 {
@@ -35,32 +36,28 @@ public class MainMenu : MonoBehaviour
     private TextMeshProUGUI infoBodyText;
     private TextMeshProUGUI infoStatsText;
 
-    // Слоттар мен деректер
     private int selectedSaveSlot = 1;
     private TMP_FontAsset defaultFont;
 
     private void Awake()
     {
-        // Дыбыс жүйесін инициализациялау (Процедуралық дыбыстар)
         SetupAudio();
 
-        // Canvas іздеу
         if (targetCanvas == null)
         {
             targetCanvas = FindAnyObjectByType<Canvas>();
         }
 
-        // Қолданыстағы қаріпті табу
         TextMeshProUGUI existingTmp = FindAnyObjectByType<TextMeshProUGUI>();
         if (existingTmp != null)
         {
             defaultFont = existingTmp.font;
         }
 
-        // Ескі батырмаларды тауып, жаңа стильге көшіру немесе жасыру
+        // Ескі ақ батырмаларды жасыру
         CleanLegacyButtons();
 
-        // Барлық интерактивті элементтерді жасау
+        // Барлық интерактивті элементтерді орнату
         CreateAllUIElements();
 
         // Модальді терезелерді дайындау
@@ -69,29 +66,23 @@ public class MainMenu : MonoBehaviour
 
     private void Start()
     {
-        // Басты экран дыбысы
-        PlaySound(sfxMagic, 0.5f);
+        PlaySound(sfxMagic, 0.45f);
         Debug.Log("Eclipse: Басты мәзір сәтті қосылды! Барлық батырмалар әзір.");
     }
 
-    #region Негізгі Батырма Әрекеттері (Public Callbacks)
+    #region Негізгі Батырма Әрекеттері
 
-    /// <summary>
-    /// ОЙЫНДЫ / СИМУЛЯЦИЯНЫ БАСТАУ
-    /// </summary>
     public void PlayGame()
     {
         PlaySound(sfxStart, 0.9f);
-        Debug.Log("СИМУЛЯЦИЯ БАСТАЛДЫ! Негізгі аренаға көшу...");
-
+        Debug.Log("СИМУЛЯЦИЯ БАСТАЛДЫ! Негізгі ойынға көшу...");
         StartCoroutine(StartGameRoutine());
     }
 
     private IEnumerator StartGameRoutine()
     {
-        yield return new WaitForSeconds(0.45f);
+        yield return new WaitForSeconds(0.4f);
 
-        // Келесі сахнаны ашу (Егер бар болса, әйтпесе index 1 немесе нұсқаны ашады)
         int nextScene = SceneManager.GetActiveScene().buildIndex + 1;
         if (nextScene < SceneManager.sceneCountInBuildSettings)
         {
@@ -99,14 +90,10 @@ public class MainMenu : MonoBehaviour
         }
         else
         {
-            // Егер тек 1 сахна болса немесе атау бойынша:
             SceneManager.LoadScene(1);
         }
     }
 
-    /// <summary>
-    /// ПРОГРЕСТІ ЖҮКТЕУ ТЕРЕЗЕСІН АШУ
-    /// </summary>
     public void OpenLoadProgress()
     {
         PlaySound(sfxClick, 0.7f);
@@ -116,9 +103,6 @@ public class MainMenu : MonoBehaviour
         AnimatePopup(loadProgressPanel);
     }
 
-    /// <summary>
-    /// БАПТАУЛАР ТЕРЕЗЕСІН АШУ
-    /// </summary>
     public void OpenSettings()
     {
         PlaySound(sfxClick, 0.7f);
@@ -128,9 +112,6 @@ public class MainMenu : MonoBehaviour
         AnimatePopup(settingsPanel);
     }
 
-    /// <summary>
-    /// ОЙЫННАН ШЫҒУ ТЕРЕЗЕСІ
-    /// </summary>
     public void QuitGame()
     {
         PlaySound(sfxClick, 0.7f);
@@ -140,13 +121,10 @@ public class MainMenu : MonoBehaviour
         AnimatePopup(quitConfirmPanel);
     }
 
-    /// <summary>
-    /// ОЙЫНДЫ ТОЛЫҚ ЖАБУ (Расталған кезде)
-    /// </summary>
     public void ConfirmQuit()
     {
         PlaySound(sfxClick, 0.8f);
-        Debug.Log("Ойын толық аяқталды және жабылды.");
+        Debug.Log("Ойын толық аяқталды.");
         Application.Quit();
 
 #if UNITY_EDITOR
@@ -154,9 +132,6 @@ public class MainMenu : MonoBehaviour
 #endif
     }
 
-    /// <summary>
-    /// БАРЛЫҚ МОДАЛЬДІ ТЕРЕЗЕЛЕРДІ ЖАБУ
-    /// </summary>
     public void CloseAllPopups()
     {
         PlaySound(sfxClose, 0.6f);
@@ -169,7 +144,7 @@ public class MainMenu : MonoBehaviour
 
     #endregion
 
-    #region Интерактивті Аймақтар мен Руналар (Interactivity)
+    #region Интерактивті Аймақтар мен Руналар
 
     public void OnZoneClicked(string zoneTitle, string zoneDesc, string zoneStats)
     {
@@ -204,13 +179,13 @@ public class MainMenu : MonoBehaviour
 
     #endregion
 
-    #region UI Элементтерін Құру (UI Builder)
+    #region UI Элементтерін Құру
 
     private void CleanLegacyButtons()
     {
         if (targetCanvas == null) return;
 
-        // Ескі ақ PlayButton және QuitButton нысандарын жасыру, олар суретті жауып қалмасын
+        // Ескі батырмаларды өшіру
         Transform playBtn = targetCanvas.transform.Find("PlayButton");
         if (playBtn != null) playBtn.gameObject.SetActive(false);
 
@@ -222,90 +197,83 @@ public class MainMenu : MonoBehaviour
     {
         if (targetCanvas == null) return;
 
-        // 1. Сол жақтағы басты мәзір батырмалары
-        // Координаталар 1920x1080 салыстырмалы өлшемінде
-        CreateMenuButton("Btn_RunSim", "СИМУЛЯЦИЯНЫ БАСТАУ", new Vector2(-690, 235), new Vector2(340, 75), PlayGame, true);
-        CreateMenuButton("Btn_LoadProg", "ПРОГРЕСТІ ЖҮКТЕУ", new Vector2(-690, 85), new Vector2(340, 75), OpenLoadProgress, false);
-        CreateMenuButton("Btn_Settings", "БАПТАУЛАР", new Vector2(-690, -65), new Vector2(340, 75), OpenSettings, false);
-        CreateMenuButton("Btn_Quit", "ОЙЫННАН ШЫҒУ", new Vector2(-690, -215), new Vector2(340, 75), QuitGame, false);
+        // 1. Сол жақтағы тас плиталарға тура үйлесетін батырмалар
+        // Фон мөлдір - табиғи 3D тас суреті көрінеді, тек қаріп жарқырап тұрады!
+        CreateCleanStoneButton("Btn_RunSim", "СИМУЛЯЦИЯНЫ БАСТАУ", new Vector2(-640, 210), new Vector2(380, 72), PlayGame);
+        CreateCleanStoneButton("Btn_LoadProg", "ПРОГРЕСТІ ЖҮКТЕУ", new Vector2(-640, 65), new Vector2(380, 72), OpenLoadProgress);
+        CreateCleanStoneButton("Btn_Settings", "БАПТАУЛАР", new Vector2(-640, -80), new Vector2(380, 72), OpenSettings);
+        CreateCleanStoneButton("Btn_Quit", "ОЙЫННАН ШЫҒУ", new Vector2(-640, -225), new Vector2(380, 72), QuitGame);
 
-        // 2. Төменгі сол жақ - Scope / Жол картасы панелі
-        CreateScopeBox(new Vector2(-690, -400), new Vector2(370, 150));
+        // 2. Төменгі сол жақ - Scope / Жол картасы (Табиғи тас панеліне орналасқан таза мәтін)
+        CreateCleanScopeText(new Vector2(-640, -380), new Vector2(390, 125));
 
-        // 3. Орталық аренаның интерактивті аймақтары (Clickable Zones)
-        // Ойыншының орталық аренасы
-        CreateHotspot("Zone_Player", "ҚАРАҢҒЫ БАТЫР АРЕНАСЫ",
+        // 3. Орталық аренаның интерактивті аймақтары (Тыныш күйде мөлдір, үстіне барғанда ғана жарқырайды)
+        CreateCleanHotspot("Zone_Player", "ҚАРАҢҒЫ БАТЫР АРЕНАСЫ",
             "Ойыншының бастапқы қасиетті алаңы. Қараңғы батыр қанды орағымен гоблиндер армиясына қарсы тұруға сақадай сай.",
-            "Денсаулық (HP): 100/100 | Шабуыл күші: 25 | Жылдамдық: 5.0 | Қабілет: 'Көлеңкелі жарылыс'",
-            new Vector2(0, -90), new Vector2(160, 160));
+            "Денсаулық (HP): 100/100 | Шабуыл: 25 | Жылдамдық: 5.0 | Қабілет: 'Көлеңкелі жарылыс'",
+            new Vector2(0, -95), new Vector2(160, 160));
 
-        // Басты Аймақ (Main Area)
-        CreateHotspot("Zone_MainArea", "БАСТЫ ҰРЫС АЙМАҒЫ",
-            "Аренаның негізгі тас шеңбері. Барлық жаулар мен құбыжықтар осы аймаққа қарай ағылады.",
+        CreateCleanHotspot("Zone_MainArea", "БАСТЫ ҰРЫС АЙМАҒЫ",
+            "Аренаның негізгі тас шеңбері. Барлық жаулар осы аймаққа қарай ағылады.",
             "Қауіп деңгейі: Орташа | Сыйлықтар: XP Кристалдары және Ежелгі руналар",
             new Vector2(-280, -95), new Vector2(130, 90));
 
-        // Жақыннан шабуылдайтын гоблиндер (Melee Goblin)
-        CreateHotspot("Zone_Melee", "ҚАНҚҰМАР ГОБЛИНДЕР АЙМАҒЫ",
+        CreateCleanHotspot("Zone_Melee", "ҚАНҚҰМАР ГОБЛИНДЕР АЙМАҒЫ",
             "Жақыннан топтасып шабуылдайтын кіші гоблиндер. Жылдам қимылдап, қоршауға алуға тырысады.",
             "HP: 40 | Зақым: 10 | Жылдамдық: 3.5 | Әлсіздік: Аймақтық от сиқыры",
-            new Vector2(-225, 75), new Vector2(140, 120));
+            new Vector2(-225, 75), new Vector2(130, 100));
 
-        // Алыстан шабуылдайтын гоблиндер (Ranged Goblin)
-        CreateHotspot("Zone_Ranged", "МЕРГЕН ГОБЛИНДЕР СПАВН АЙМАҒЫ",
+        CreateCleanHotspot("Zone_Ranged", "МЕРГЕН ГОБЛИНДЕР СПАВН АЙМАҒЫ",
             "Алыстан улы жебелер ататын гоблин мергендері. Батырды қашықтықтан атқылайды.",
             "HP: 30 | Оқ зақымы: 15 | Қашықтық: 9 метр | Әлсіздік: Шапшаң соққылар",
-            new Vector2(-70, 160), new Vector2(150, 120));
+            new Vector2(-70, 160), new Vector2(130, 100));
 
-        // Гоблиндер Патшасы (Goblins Patshasy - Boss)
-        CreateHotspot("Zone_Boss", "ГОБЛИНДЕР ПАТШАСЫ (БАС БОСС)",
+        CreateCleanHotspot("Zone_Boss", "ГОБЛИНДЕР ПАТШАСЫ (БАС БОСС)",
             "Тақ үстінде масаттанған алып Гоблиндер Патшасы. Жойқын тас балғасымен тұтас аренаны сілкіндіреді!",
             "HP: 1,500 | Зақым: 50 | Фазалар: 3 түрлі кезең | Олжа: Аңызға айналған 'Күн Тұтылу' тәжі",
-            new Vector2(360, 80), new Vector2(220, 200));
+            new Vector2(360, 80), new Vector2(200, 180));
 
-        // Элиталық Гоблин (Elite Goblin)
-        CreateHotspot("Zone_Elite", "ЭЛИТАЛЫҚ ГОБЛИН (ЧЕМПИОН)",
-            "Патшаның бас оққағары. Сауыт киген, шабуылдары ауыр және батырдың соққыларына төзімді.",
+        CreateCleanHotspot("Zone_Elite", "ЭЛИТАЛЫҚ ГОБЛИН (ЧЕМПИОН)",
+            "Патшаның бас оққағары. Сауыт киген, шабуылдары ауыр және соққыларға төзімді.",
             "HP: 450 | Зақым: 28 | Қабілет: Ауыр найза екпіні | Олжа: Руналық сиқыр тасы",
-            new Vector2(380, -180), new Vector2(160, 140));
+            new Vector2(380, -180), new Vector2(140, 120));
 
-        // 4. Оң жақтағы Ежелгі Тас Плита - Руналық Алхимия Матрицасы
-        CreateRuneElement("Rune_Fire", "ОТ РУНАСЫ (ҚЫЗЫЛ)",
+        // 4. Оң жақтағы Руналар мен Синтездер (Суреттегі руна слоттарының үстінде мөлдір)
+        CreateCleanRune("Rune_Fire", "ОТ РУНАСЫ (ҚЫЗЫЛ)",
             "Негізгі элемент: От", "Жалын зақымы: +15% | Алаңды өртеу әсері",
-            new Vector2(560, -135), new Vector2(65, 65), new Color(0.9f, 0.2f, 0.2f, 0.3f));
+            new Vector2(430, -145), new Vector2(70, 70), new Color(1f, 0.2f, 0.2f, 0.35f));
 
-        CreateRuneElement("Rune_Water", "СУ / МҰЗ РУНАСЫ (КӨК)",
+        CreateCleanRune("Rune_Water", "СУ / МҰЗ РУНАСЫ (КӨК)",
             "Негізгі элемент: Мұз бен Су", "Баяулату: -25% жау жылдамдығы | Мұздату мүмкіндігі: 20%",
-            new Vector2(685, -135), new Vector2(65, 65), new Color(0.1f, 0.6f, 0.95f, 0.3f));
+            new Vector2(530, -145), new Vector2(70, 70), new Color(0.2f, 0.7f, 1f, 0.35f));
 
-        CreateRuneElement("Rune_Nature", "ТАБИҒАТ / ҚАЛҚАН РУНАСЫ (ЖАСЫЛ)",
+        CreateCleanRune("Rune_Nature", "ТАБИҒАТ / ҚАЛҚАН РУНАСЫ (ЖАСЫЛ)",
             "Негізгі элемент: Жер және Табиғат", "Қорғаныс қалқаны: +30 | Әр секунд сайын 5 HP қалпына келтіру",
-            new Vector2(810, -135), new Vector2(65, 65), new Color(0.2f, 0.85f, 0.3f, 0.3f));
+            new Vector2(630, -145), new Vector2(70, 70), new Color(0.2f, 0.9f, 0.3f, 0.35f));
 
-        // Біріккен Руналар (Fusions)
-        CreateRuneElement("Rune_VoidStrike", "БОС КЕҢІСТІК СОҚҚЫСЫ (VOID STRIKE)",
+        CreateCleanRune("Rune_VoidStrike", "БОС КЕҢІСТІК СОҚҚЫСЫ (VOID STRIKE)",
             "От + Мұз синтезі арқылы пайда болған күлгін кеңістік жыртылуы.",
             "Аймақтық зақым: 85 | Жауларды орталыққа тартып жұту әсері",
-            new Vector2(560, -325), new Vector2(65, 65), new Color(0.7f, 0.15f, 0.9f, 0.35f));
+            new Vector2(430, -345), new Vector2(70, 70), new Color(0.75f, 0.2f, 1f, 0.4f));
 
-        CreateRuneElement("Rune_BloodHarvest", "ҚАНДЫ ОРАҚ (BLOOD HARVEST)",
+        CreateCleanRune("Rune_BloodHarvest", "ҚАНДЫ ОРАҚ (BLOOD HARVEST)",
             "От + Табиғат синтезі. Жаулардың тіршілік күшін сорып алу сиқыры.",
-            "Зақым: 60 | Өмір сүру (Lifesteal): Келтірілген зақымның 35%-ын батырға қайтару",
-            new Vector2(685, -325), new Vector2(65, 65), new Color(0.85f, 0.1f, 0.2f, 0.35f));
+            "Зақым: 60 | Өмір сүру (Lifesteal): 35% денсаулық қайтару",
+            new Vector2(530, -345), new Vector2(70, 70), new Color(0.9f, 0.1f, 0.2f, 0.4f));
 
-        CreateRuneElement("Rune_SoulSiphon", "ЖАН СІҢІРУ (SOUL SIPHON)",
+        CreateCleanRune("Rune_SoulSiphon", "ЖАН СІҢІРУ (SOUL SIPHON)",
             "Мұз + Табиғат синтезі. Рухани кристалдарды тартып, батырды күшейтеді.",
-            "Қарсыласты қатыру: 2.5 сек | Кристалл табу мүмкіндігі: 2x есе артады",
-            new Vector2(810, -325), new Vector2(65, 65), new Color(0.1f, 0.9f, 0.6f, 0.35f));
+            "Қарсыласты қатыру: 2.5 сек | Кристалл табу: 2x есе артады",
+            new Vector2(630, -345), new Vector2(70, 70), new Color(0.1f, 0.95f, 0.6f, 0.4f));
 
-        // 5. Төменгі орталық слоттар [1] [2] [3] [4]
-        CreateSlotButton("Slot_1", 1, "Қараңғы Қылыш", "Жылдам тілу соққысы. Зақым: 25", new Vector2(-195, -450));
-        CreateSlotButton("Slot_2", 2, "Отты Шар", "Жалынды атыс. Зақым: 45", new Vector2(-65, -450));
-        CreateSlotButton("Slot_3", 3, "Мұз Қалқаны", "Уақытша мызғымас қорған. +50 Қорғаныс", new Vector2(65, -450));
-        CreateSlotButton("Slot_4", 4, "Өлім Орағы", "Айналмалы соққы. Барлық жақын жауларға 70 зақым", new Vector2(195, -450));
+        // 5. Төменгі жедел слоттар [1] [2] [3] [4] (Сандар суретте бар, тек басу әрекеті)
+        CreateCleanSlot("Slot_1", 1, "Қараңғы Қылыш", "Жылдам тілу соққысы. Зақым: 25", new Vector2(-170, -455));
+        CreateCleanSlot("Slot_2", 2, "Отты Шар", "Жалынды атыс. Зақым: 45", new Vector2(-55, -455));
+        CreateCleanSlot("Slot_3", 3, "Мұз Қалқаны", "Уақытша мызғымас қорған. +50 Қорғаныс", new Vector2(55, -455));
+        CreateCleanSlot("Slot_4", 4, "Өлім Орағы", "Айналмалы соққы. Барлық жақын жауларға 70 зақым", new Vector2(170, -455));
     }
 
-    private void CreateMenuButton(string name, string text, Vector2 anchoredPos, Vector2 size, Action onClick, bool isPrimary)
+    private void CreateCleanStoneButton(string name, string text, Vector2 anchoredPos, Vector2 size, Action onClick)
     {
         GameObject btnObj = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
         btnObj.transform.SetParent(targetCanvas.transform, false);
@@ -317,24 +285,22 @@ public class MainMenu : MonoBehaviour
         rt.anchoredPosition = anchoredPos;
         rt.sizeDelta = size;
 
+        // Фон ТҰНЫҚ (Alpha = 0.001f) - суреттегі әдемі 3D тас плитасы бүлінбей көрініп тұрады!
         Image img = btnObj.GetComponent<Image>();
-        // Жартылай мөлдір тас түстес стиль (суреттің үстіне үйлесімді)
-        img.color = isPrimary ? new Color(0.18f, 0.22f, 0.30f, 0.85f) : new Color(0.12f, 0.15f, 0.20f, 0.75f);
+        img.color = new Color(0, 0, 0, 0.001f);
 
         Button btn = btnObj.GetComponent<Button>();
         ColorBlock cb = btn.colors;
-        cb.normalColor = img.color;
-        cb.highlightedColor = isPrimary ? new Color(0.28f, 0.40f, 0.65f, 0.95f) : new Color(0.25f, 0.30f, 0.42f, 0.9f);
-        cb.pressedColor = new Color(0.40f, 0.55f, 0.85f, 1f);
+        cb.normalColor = new Color(0, 0, 0, 0.001f);
+        cb.highlightedColor = new Color(0.35f, 0.65f, 1f, 0.18f); // Үстіне барғанда нәзік жарық
+        cb.pressedColor = new Color(0.45f, 0.75f, 1f, 0.32f);
         cb.selectedColor = cb.highlightedColor;
         btn.colors = cb;
 
         btn.onClick.AddListener(() => onClick?.Invoke());
-
-        // Анимациялық тыңдаушы (Hover scale effect)
         AddHoverAnimation(btnObj);
 
-        // Мәтін қосу
+        // Тасқа қашалғандай анық, көлеңкелі қаріп
         GameObject textObj = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
         textObj.transform.SetParent(btnObj.transform, false);
 
@@ -346,13 +312,18 @@ public class MainMenu : MonoBehaviour
         TextMeshProUGUI tmp = textObj.GetComponent<TextMeshProUGUI>();
         if (defaultFont != null) tmp.font = defaultFont;
         tmp.text = text;
-        tmp.fontSize = isPrimary ? 20 : 18;
+        tmp.fontSize = 21;
         tmp.fontStyle = FontStyles.Bold;
         tmp.alignment = TextAlignmentOptions.Center;
-        tmp.color = isPrimary ? new Color(0.95f, 0.98f, 1f) : new Color(0.85f, 0.88f, 0.92f);
+        tmp.color = new Color(0.96f, 0.98f, 1f); // Жарқын ақ-күміс
+
+        // Қаріпті анық ететін терең көлеңке
+        Shadow shadow = textObj.AddComponent<Shadow>();
+        shadow.effectColor = new Color(0f, 0f, 0f, 0.95f);
+        shadow.effectDistance = new Vector2(2f, -2f);
     }
 
-    private void CreateScopeBox(Vector2 anchoredPos, Vector2 size)
+    private void CreateCleanScopeText(Vector2 anchoredPos, Vector2 size)
     {
         GameObject box = new GameObject("ScopeBox", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
         box.transform.SetParent(targetCanvas.transform, false);
@@ -364,14 +335,15 @@ public class MainMenu : MonoBehaviour
         rt.anchoredPosition = anchoredPos;
         rt.sizeDelta = size;
 
+        // Фон тұнық, тас суреті көрінеді
         Image img = box.GetComponent<Image>();
-        img.color = new Color(0.08f, 0.10f, 0.14f, 0.75f);
+        img.color = new Color(0, 0, 0, 0.001f);
 
         Button btn = box.GetComponent<Button>();
         btn.onClick.AddListener(() =>
         {
             ShowInfoModal("ЖОБА ЖОЛ КАРТАСЫ (ROADMAP)",
-                "• 1-АПТА: Негізгі шайқас және Гоблиндер\n• 2-АПТА: Басқару динамикасы мен Әрекеттер\n• 3-АПТА: Жаңа жаулар мен Марапат жүйесі\n• 4-АПТА: Босс шайқасы және Даму сатысы",
+                "• 1-АПТА: Негізгі шайқас және Гоблиндер механикасы\n• 2-АПТА: Басқару динамикасы мен Әрекеттер\n• 3-АПТА: Жаңа жаулар мен Марапат жүйесі\n• 4-АПТА: Босс шайқасы және Даму сатысы",
                 "Ағымдағы нұсқа: MVP Protocol 1-4 | Дайындық: 100%");
         });
 
@@ -381,18 +353,22 @@ public class MainMenu : MonoBehaviour
         RectTransform textRt = textObj.GetComponent<RectTransform>();
         textRt.anchorMin = Vector2.zero;
         textRt.anchorMax = Vector2.one;
-        textRt.sizeDelta = new Vector2(-20, -10);
+        textRt.sizeDelta = new Vector2(-16, -10);
 
         TextMeshProUGUI tmp = textObj.GetComponent<TextMeshProUGUI>();
         if (defaultFont != null) tmp.font = defaultFont;
-        tmp.text = "<b>1-АПТА:</b> Негізгі шайқас және Гоблиндер\n<b>2-АПТА:</b> Басқару және Әрекеттер\n<b>3-АПТА:</b> Жаңа жаулар мен Марапаттар\n<b>4-АПТА:</b> Босс шайқасы және Прогресс";
+        tmp.text = "<b>1-АПТА:</b> Негізгі ұрыс және Гоблиндер\n<b>2-АПТА:</b> Басқару және Әрекеттер\n<b>3-АПТА:</b> Жаңа жаулар мен Марапаттар\n<b>4-АПТА:</b> Босс шайқасы және Прогресс";
         tmp.fontSize = 13.5f;
         tmp.lineSpacing = 10f;
         tmp.alignment = TextAlignmentOptions.Left;
-        tmp.color = new Color(0.80f, 0.85f, 0.90f, 0.95f);
+        tmp.color = new Color(0.92f, 0.95f, 1f);
+
+        Shadow shadow = textObj.AddComponent<Shadow>();
+        shadow.effectColor = new Color(0f, 0f, 0f, 0.95f);
+        shadow.effectDistance = new Vector2(1.5f, -1.5f);
     }
 
-    private void CreateHotspot(string name, string title, string desc, string stats, Vector2 anchoredPos, Vector2 size)
+    private void CreateCleanHotspot(string name, string title, string desc, string stats, Vector2 anchoredPos, Vector2 size)
     {
         GameObject hotspot = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
         hotspot.transform.SetParent(targetCanvas.transform, false);
@@ -405,21 +381,20 @@ public class MainMenu : MonoBehaviour
         rt.sizeDelta = size;
 
         Image img = hotspot.GetComponent<Image>();
-        // Тыныш күйде көрінбейтін немесе өте жұмсақ аура
-        img.color = new Color(0.3f, 0.6f, 1f, 0.05f);
+        img.color = new Color(0, 0, 0, 0.001f);
 
         Button btn = hotspot.GetComponent<Button>();
         ColorBlock cb = btn.colors;
-        cb.normalColor = new Color(0.3f, 0.6f, 1f, 0.05f);
-        cb.highlightedColor = new Color(0.4f, 0.7f, 1f, 0.35f);
-        cb.pressedColor = new Color(0.9f, 0.3f, 0.3f, 0.5f);
+        cb.normalColor = new Color(0, 0, 0, 0.001f);
+        cb.highlightedColor = new Color(0.4f, 0.7f, 1f, 0.25f);
+        cb.pressedColor = new Color(0.9f, 0.3f, 0.3f, 0.4f);
         btn.colors = cb;
 
         btn.onClick.AddListener(() => OnZoneClicked(title, desc, stats));
         AddHoverAnimation(hotspot);
     }
 
-    private void CreateRuneElement(string name, string runeName, string combo, string stats, Vector2 anchoredPos, Vector2 size, Color glowColor)
+    private void CreateCleanRune(string name, string runeName, string combo, string stats, Vector2 anchoredPos, Vector2 size, Color glowColor)
     {
         GameObject runeObj = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
         runeObj.transform.SetParent(targetCanvas.transform, false);
@@ -432,12 +407,12 @@ public class MainMenu : MonoBehaviour
         rt.sizeDelta = size;
 
         Image img = runeObj.GetComponent<Image>();
-        img.color = glowColor;
+        img.color = new Color(0, 0, 0, 0.001f);
 
         Button btn = runeObj.GetComponent<Button>();
         ColorBlock cb = btn.colors;
-        cb.normalColor = glowColor;
-        cb.highlightedColor = new Color(glowColor.r, glowColor.g, glowColor.b, 0.75f);
+        cb.normalColor = new Color(0, 0, 0, 0.001f);
+        cb.highlightedColor = glowColor;
         cb.pressedColor = Color.white;
         btn.colors = cb;
 
@@ -445,7 +420,7 @@ public class MainMenu : MonoBehaviour
         AddHoverAnimation(runeObj);
     }
 
-    private void CreateSlotButton(string name, int slotIndex, string itemName, string itemDesc, Vector2 anchoredPos)
+    private void CreateCleanSlot(string name, int slotIndex, string itemName, string itemDesc, Vector2 anchoredPos)
     {
         GameObject slotObj = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
         slotObj.transform.SetParent(targetCanvas.transform, false);
@@ -455,48 +430,30 @@ public class MainMenu : MonoBehaviour
         rt.anchorMax = new Vector2(0.5f, 0.5f);
         rt.pivot = new Vector2(0.5f, 0.5f);
         rt.anchoredPosition = anchoredPos;
-        rt.sizeDelta = new Vector2(75, 75);
+        rt.sizeDelta = new Vector2(70, 60);
 
         Image img = slotObj.GetComponent<Image>();
-        img.color = new Color(0.15f, 0.18f, 0.24f, 0.5f);
+        img.color = new Color(0, 0, 0, 0.001f);
 
         Button btn = slotObj.GetComponent<Button>();
         ColorBlock cb = btn.colors;
-        cb.normalColor = img.color;
-        cb.highlightedColor = new Color(0.35f, 0.45f, 0.65f, 0.8f);
-        cb.pressedColor = new Color(0.5f, 0.7f, 1f, 1f);
+        cb.normalColor = new Color(0, 0, 0, 0.001f);
+        cb.highlightedColor = new Color(0.4f, 0.6f, 0.9f, 0.3f);
+        cb.pressedColor = new Color(0.6f, 0.8f, 1f, 0.6f);
         btn.colors = cb;
 
         btn.onClick.AddListener(() => OnSlotClicked(slotIndex, itemName, itemDesc));
         AddHoverAnimation(slotObj);
-
-        // Сан белгісі
-        GameObject textObj = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
-        textObj.transform.SetParent(slotObj.transform, false);
-
-        RectTransform textRt = textObj.GetComponent<RectTransform>();
-        textRt.anchorMin = Vector2.zero;
-        textRt.anchorMax = Vector2.one;
-        textRt.sizeDelta = Vector2.zero;
-
-        TextMeshProUGUI tmp = textObj.GetComponent<TextMeshProUGUI>();
-        if (defaultFont != null) tmp.font = defaultFont;
-        tmp.text = slotIndex.ToString();
-        tmp.fontSize = 24;
-        tmp.fontStyle = FontStyles.Bold;
-        tmp.alignment = TextAlignmentOptions.Center;
-        tmp.color = new Color(0.85f, 0.9f, 1f, 0.8f);
     }
 
     #endregion
 
-    #region Модальді Терезелер (Popups & Modals)
+    #region Модальді Терезелер (Popups)
 
     private void CreatePopups()
     {
         if (targetCanvas == null) return;
 
-        // Қараңғы артқы фон
         popupOverlay = new GameObject("PopupOverlay", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button));
         popupOverlay.transform.SetParent(targetCanvas.transform, false);
 
@@ -506,28 +463,27 @@ public class MainMenu : MonoBehaviour
         overlayRt.sizeDelta = Vector2.zero;
 
         Image overlayImg = popupOverlay.GetComponent<Image>();
-        overlayImg.color = new Color(0.02f, 0.03f, 0.05f, 0.82f);
+        overlayImg.color = new Color(0.03f, 0.04f, 0.07f, 0.85f);
 
         Button overlayBtn = popupOverlay.GetComponent<Button>();
         overlayBtn.onClick.AddListener(CloseAllPopups);
 
-        // 1. БАПТАУЛАР ТЕРЕЗЕСІ
+        // 1. БАПТАУЛАР
         settingsPanel = CreateModalFrame("SettingsPanel", "БАПТАУЛАР", new Vector2(580, 520));
         CreateSettingsContent(settingsPanel);
 
-        // 2. ПРОГРЕСТІ ЖҮКТЕУ ТЕРЕЗЕСІ
+        // 2. ПРОГРЕСТІ ЖҮКТЕУ
         loadProgressPanel = CreateModalFrame("LoadProgressPanel", "ПРОГРЕСТІ ЖҮКТЕУ", new Vector2(620, 520));
         CreateLoadProgressContent(loadProgressPanel);
 
-        // 3. ОЙЫННАН ШЫҒУДЫ РАСТАУ ТЕРЕЗЕСІ
+        // 3. ОЙЫННАН ШЫҒУ
         quitConfirmPanel = CreateModalFrame("QuitConfirmPanel", "ОЙЫННАН ШЫҒУ", new Vector2(480, 280));
         CreateQuitConfirmContent(quitConfirmPanel);
 
-        // 4. СИПАТТАМА / АҚПАРАТ ТЕРЕЗЕСІ
+        // 4. СИПАТТАМА / АҚПАРАТ
         infoPanel = CreateModalFrame("InfoPanel", "АҚПАРАТ", new Vector2(560, 420));
         CreateInfoContent(infoPanel);
 
-        // Бастапқыда барлығын жабу
         popupOverlay.SetActive(false);
         settingsPanel.SetActive(false);
         loadProgressPanel.SetActive(false);
@@ -548,9 +504,8 @@ public class MainMenu : MonoBehaviour
         rt.sizeDelta = size;
 
         Image img = modal.GetComponent<Image>();
-        img.color = new Color(0.10f, 0.12f, 0.18f, 0.98f);
+        img.color = new Color(0.11f, 0.14f, 0.20f, 0.98f);
 
-        // Тақырып
         GameObject titleObj = new GameObject("Title", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
         titleObj.transform.SetParent(modal.transform, false);
 
@@ -567,9 +522,8 @@ public class MainMenu : MonoBehaviour
         titleTmp.fontSize = 26;
         titleTmp.fontStyle = FontStyles.Bold;
         titleTmp.alignment = TextAlignmentOptions.Center;
-        titleTmp.color = new Color(0.95f, 0.85f, 0.45f); // Алтын түстес
+        titleTmp.color = new Color(0.95f, 0.85f, 0.45f);
 
-        // Жабу батырмасы (X)
         CreateCloseButton(modal, new Vector2((size.x / 2) - 30, (size.y / 2) - 30));
 
         return modal;
@@ -611,30 +565,24 @@ public class MainMenu : MonoBehaviour
 
     private void CreateSettingsContent(GameObject panel)
     {
-        // 1. Дыбыс деңгейі
         CreateSettingSlider(panel, "Жалпы дыбыс (Master Volume):", 80, 0.8f, val =>
         {
             AudioListener.volume = val;
-            Debug.Log($"Дыбыс өзгертілді: {val * 100}%");
         });
 
-        // 2. SFX деңгейі
         CreateSettingSlider(panel, "Эффектілер дыбысы (SFX):", 0, 0.9f, val =>
         {
             if (audioSource != null) audioSource.volume = val;
         });
 
-        // 3. Экран режимі (Толық экран)
         CreateSettingToggle(panel, "Толық экран режимі (Fullscreen):", -80, Screen.fullScreen, isFull =>
         {
             Screen.fullScreen = isFull;
             PlaySound(sfxClick, 0.6f);
         });
 
-        // 4. Тіл таңдауы
         CreateSettingLabel(panel, "Тіл (Language): Қазақ тілі (Таңдалған)", -140);
 
-        // Сақтау батырмасы
         CreateGenericButton(panel, "САҚТАУ ЖӘНЕ ЖАБУ", new Vector2(0, -210), new Vector2(240, 50), CloseAllPopups, true);
     }
 
@@ -655,7 +603,6 @@ public class MainMenu : MonoBehaviour
         tmp.fontSize = 17;
         tmp.color = new Color(0.9f, 0.93f, 0.98f);
 
-        // Slider негізі
         GameObject sliderObj = new GameObject("Slider", typeof(RectTransform), typeof(Slider));
         sliderObj.transform.SetParent(parent.transform, false);
 
@@ -734,12 +681,10 @@ public class MainMenu : MonoBehaviour
 
     private void CreateLoadProgressContent(GameObject panel)
     {
-        // 3 Сақтау слоты
         CreateSaveSlotRow(panel, 1, "СЛОТ 1: АРХИВ БАТЫРЫ", "5-Деңгей | Тірі қалған уақыт: 14:20 | 2,450 Алтын", 70);
         CreateSaveSlotRow(panel, 2, "СЛОТ 2: ҚАНДЫ ТАҢДАУ", "2-Деңгей | Тірі қалған уақыт: 05:12 | 680 Алтын", -25);
         CreateSaveSlotRow(panel, 3, "СЛОТ 3: БОС САҚТАУ", "[Жаңа ойынға арналған бос орын]", -120);
 
-        // Жүктеу батырмасы
         CreateGenericButton(panel, "ТАҢДАЛҒАНДЫ ЖҮКТЕУ ЖӘНЕ ОЙНАУ", new Vector2(0, -210), new Vector2(380, 50), () =>
         {
             PlayGame();
@@ -765,10 +710,8 @@ public class MainMenu : MonoBehaviour
         {
             selectedSaveSlot = slotNum;
             PlaySound(sfxClick, 0.7f);
-            Debug.Log($"Сақтау слоты таңдалды: {slotNum}");
         });
 
-        // Мәтіндер
         GameObject textObj = new GameObject("Text", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
         textObj.transform.SetParent(row.transform, false);
 
@@ -809,7 +752,6 @@ public class MainMenu : MonoBehaviour
 
     private void CreateInfoContent(GameObject panel)
     {
-        // Тақырып
         GameObject titleObj = new GameObject("InfoTitle", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
         titleObj.transform.SetParent(panel.transform, false);
 
@@ -827,7 +769,6 @@ public class MainMenu : MonoBehaviour
         infoTitleText.alignment = TextAlignmentOptions.Center;
         infoTitleText.color = new Color(0.95f, 0.82f, 0.4f);
 
-        // Негізгі сипаттама мәтіні
         GameObject bodyObj = new GameObject("InfoBody", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
         bodyObj.transform.SetParent(panel.transform, false);
 
@@ -839,13 +780,12 @@ public class MainMenu : MonoBehaviour
 
         infoBodyText = bodyObj.GetComponent<TextMeshProUGUI>();
         if (defaultFont != null) infoBodyText.font = defaultFont;
-        infoBodyText.text = "Таңдалған аймақ немесе элемент туралы толық мәлімет.";
+        infoBodyText.text = "Толық мәлімет.";
         infoBodyText.fontSize = 16.5f;
         infoBodyText.lineSpacing = 8f;
         infoBodyText.alignment = TextAlignmentOptions.TopLeft;
         infoBodyText.color = new Color(0.88f, 0.92f, 0.98f);
 
-        // Статистика / Қасиеттер мәтіні
         GameObject statsObj = new GameObject("InfoStats", typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI));
         statsObj.transform.SetParent(panel.transform, false);
 
@@ -861,9 +801,8 @@ public class MainMenu : MonoBehaviour
         infoStatsText.fontSize = 15f;
         infoStatsText.fontStyle = FontStyles.Italic;
         infoStatsText.alignment = TextAlignmentOptions.TopLeft;
-        infoStatsText.color = new Color(0.4f, 0.85f, 0.65f); // Жасыл жарық
+        infoStatsText.color = new Color(0.4f, 0.85f, 0.65f);
 
-        // Түсінікті батырмасы
         CreateGenericButton(panel, "ТҮСІНІКТІ", new Vector2(0, -150), new Vector2(180, 45), CloseAllPopups, true);
     }
 
@@ -905,24 +844,22 @@ public class MainMenu : MonoBehaviour
 
     #endregion
 
-    #region Анимация және Дыбыс Синтезі (Animations & Procedural Audio)
+    #region Анимация және Дыбыс Синтезі
 
     private void AddHoverAnimation(GameObject target)
     {
         EventTrigger trigger = target.AddComponent<EventTrigger>();
 
-        // Pointer Enter
         EventTrigger.Entry entryEnter = new EventTrigger.Entry();
         entryEnter.eventID = EventTriggerType.PointerEnter;
         entryEnter.callback.AddListener((data) =>
         {
             PlaySound(sfxHover, 0.55f);
             StopCoroutine("ScaleRoutine");
-            StartCoroutine(ScaleRoutine(target.transform, 1.06f, 0.12f));
+            StartCoroutine(ScaleRoutine(target.transform, 1.05f, 0.12f));
         });
         trigger.triggers.Add(entryEnter);
 
-        // Pointer Exit
         EventTrigger.Entry entryExit = new EventTrigger.Entry();
         entryExit.eventID = EventTriggerType.PointerExit;
         entryExit.callback.AddListener((data) =>
@@ -960,7 +897,7 @@ public class MainMenu : MonoBehaviour
 
     private IEnumerator PopupBounceRoutine(Transform t)
     {
-        t.localScale = new Vector3(0.85f, 0.85f, 1f);
+        t.localScale = new Vector3(0.88f, 0.88f, 1f);
         float elapsed = 0f;
         float dur = 0.2f;
 
@@ -968,8 +905,7 @@ public class MainMenu : MonoBehaviour
         {
             elapsed += Time.unscaledDeltaTime;
             float progress = elapsed / dur;
-            // Серіппелі әсер (Spring overshoot)
-            float scale = Mathf.Lerp(0.85f, 1.0f, progress) + Mathf.Sin(progress * Mathf.PI) * 0.05f;
+            float scale = Mathf.Lerp(0.88f, 1.0f, progress) + Mathf.Sin(progress * Mathf.PI) * 0.04f;
             t.localScale = new Vector3(scale, scale, 1f);
             yield return null;
         }
@@ -982,7 +918,6 @@ public class MainMenu : MonoBehaviour
         audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.playOnAwake = false;
 
-        // Синтезделген сапалы дыбыстарды жасау (No external audio files needed!)
         sfxClick = CreateProceduralAudio(0.08f, 420f, 140f, 0.8f, WaveType.Square);
         sfxHover = CreateProceduralAudio(0.04f, 650f, 850f, 0.25f, WaveType.Sine);
         sfxMagic = CreateProceduralAudio(0.35f, 320f, 640f, 0.6f, WaveType.SineChord);
@@ -1012,7 +947,6 @@ public class MainMenu : MonoBehaviour
             float progress = (float)i / sampleCount;
             float currentFreq = Mathf.Lerp(startFreq, endFreq, progress);
 
-            // Envelope (Шабуыл және өшу)
             float envelope = 1f - progress;
             if (progress < 0.1f) envelope = progress / 0.1f;
 
