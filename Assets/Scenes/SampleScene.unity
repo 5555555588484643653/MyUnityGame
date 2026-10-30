@@ -245,6 +245,9 @@ MonoBehaviour:
   damage: 100
   attackReach: 1.2
   attackRadius: 1.1
+  bulletPrefab: {fileID: 3993538545085373010, guid: 992dcdeb3d476074e8c5e42d314050c4, type: 3}
+  fireRate: 0.25
+  bulletDamage: 35
 --- !u!50 &182249032
 Rigidbody2D:
   serializedVersion: 5

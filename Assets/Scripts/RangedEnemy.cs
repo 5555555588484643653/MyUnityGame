@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿﻿using System.Collections;
 using UnityEngine;
 
 public class RangedEnemy : MonoBehaviour
@@ -72,6 +72,11 @@ public class RangedEnemy : MonoBehaviour
             if (animator != null)
             {
                 animator.Play("Idle", 0, 0f);
+            }
+
+            if (spriteRenderer != null && player != null)
+            {
+                spriteRenderer.flipX = player.position.x > transform.position.x;
             }
         }
         else
@@ -256,8 +261,12 @@ public class RangedEnemy : MonoBehaviour
             return;
         }
 
-        currentHealth -= damageAmount;
+        bool isCriticalHit = Random.value < 0.25f;
+        int finalDamage = isCriticalHit ? Mathf.RoundToInt(damageAmount * 1.8f) : damageAmount;
+        currentHealth -= finalDamage;
         currentHealth = Mathf.Max(0, currentHealth);
+        DamagePopup.Create(transform.position, finalDamage, isCriticalHit);
+        CameraFollow.Shake(0.08f, 0.1f);
         Debug.Log($"Зомби соққы алды. Қалған HP: {currentHealth}/{maxHealth}");
 
         if (currentHealth <= 0)
@@ -282,6 +291,7 @@ public class RangedEnemy : MonoBehaviour
         if (playerStats != null)
         {
             playerStats.RegisterZombieKill();
+            playerStats.RegisterKill();
         }
 
         if (xpGemPrefab != null)

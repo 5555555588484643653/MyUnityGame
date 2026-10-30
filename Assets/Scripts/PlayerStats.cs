@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,7 +15,9 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private Slider healthBar;
     [SerializeField, Min(1)] private int maxHealth = 100;
 
+    public Slider xpBar;
     public int CurrentHealth { get; private set; }
+    public int Kills { get; private set; }
     public int MaxHealth => maxHealth;
     public int MissionLevel { get; private set; } = 1;
     public int ZombiesKilledThisLevel { get; private set; }
@@ -142,10 +144,10 @@ public class PlayerStats : MonoBehaviour
 
     public void TakeDamage(int amount)
     {
-        if (amount <= 0 || isDead)
-        {
-            return;
-        }
+        if (amount <= 0 || isDead) return;
+
+        PlayerMovement movement = GetComponent<PlayerMovement>();
+        if (movement != null && movement.IsInvincible) return;
 
         CurrentHealth = Mathf.Max(0, CurrentHealth - amount);
         Debug.Log($"Ойыншы зақым алды. Қалған HP: {CurrentHealth}/{maxHealth}");
@@ -161,6 +163,22 @@ public class PlayerStats : MonoBehaviour
         }
 
         hurtAnimation = StartCoroutine(PlayHurtAnimation());
+    }
+
+    public void Heal(int amount)
+    {
+        if (amount > 0 && !isDead)
+        {
+            CurrentHealth = Mathf.Min(maxHealth, CurrentHealth + amount);
+        }
+    }
+
+    public void RegisterKill()
+    {
+        if (!isDead)
+        {
+            Kills++;
+        }
     }
 
     private void Die()
@@ -390,4 +408,5 @@ public class PlayerStats : MonoBehaviour
         UpdateBestZombieKills();
         SaveProgress();
     }
+
 }

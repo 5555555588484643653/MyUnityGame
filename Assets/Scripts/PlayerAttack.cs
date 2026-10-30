@@ -12,6 +12,12 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField, Min(0f)] private float attackReach = 1.2f;
     [SerializeField, Min(0f)] private float attackRadius = 1.1f;
 
+    [Header("Ranged Attack")]
+    [SerializeField] private GameObject bulletPrefab;
+    [SerializeField, Min(0.01f)] private float fireRate = 0.25f;
+    [SerializeField, Min(1)] private int bulletDamage = 35;
+    private float nextFireTime;
+
     [Header("Special Attack")]
     [SerializeField, Min(0f)] private float specialCooldown = 10f;
     [SerializeField, Min(0f)] private float specialHitDelay = 0.45f;
@@ -31,12 +37,16 @@ public class PlayerAttack : MonoBehaviour
 
     public void UpgradeDamage(int amount)
     {
-        damage += Mathf.Max(0, amount);
+        int upgrade = Mathf.Max(0, amount);
+        damage += upgrade;
+        bulletDamage += upgrade;
     }
 
     public void RestoreDamage(int savedDamage)
     {
+        int upgrade = Mathf.Max(0, savedDamage - damage);
         damage = Mathf.Max(1, savedDamage);
+        bulletDamage += upgrade;
     }
 
     private void Awake()
@@ -60,21 +70,32 @@ public class PlayerAttack : MonoBehaviour
             StartCoroutine(DealSpecialDamage());
         }
 
-        if (Mouse.current != null &&
-            Mouse.current.leftButton.wasPressedThisFrame &&
+        if (Mouse.current == null || !Mouse.current.leftButton.isPressed)
+        {
+            return;
+        }
+
+        Vector2 direction = GetMouseDirection();
+        if (direction.sqrMagnitude == 0f)
+        {
+            return;
+        }
+
+        if (spriteRenderer != null && Mathf.Abs(direction.x) > 0.01f)
+        {
+            spriteRenderer.flipX = direction.x < 0f;
+        }
+
+        if (bulletPrefab != null && Time.time >= nextFireTime)
+        {
+            ShootBullet(direction);
+            nextFireTime = Time.time + fireRate;
+        }
+
+        if (Mouse.current.leftButton.wasPressedThisFrame &&
+            bulletPrefab == null &&
             Time.time >= nextAttackTime)
         {
-            Vector2 direction = GetMouseDirection();
-            if (direction.sqrMagnitude == 0f)
-            {
-                return;
-            }
-
-            if (spriteRenderer != null && Mathf.Abs(direction.x) > 0.01f)
-            {
-                spriteRenderer.flipX = direction.x < 0f;
-            }
-
             if (animator != null)
             {
                 animator.Play(AttackState, 0, 0f);
@@ -83,6 +104,7 @@ public class PlayerAttack : MonoBehaviour
             nextAttackTime = Time.time + attackCooldown;
             StartCoroutine(DealMeleeDamage(direction));
         }
+
     }
 
     private Vector2 GetMouseDirection()
@@ -121,6 +143,20 @@ public class PlayerAttack : MonoBehaviour
                 enemy.TakeDamage(damage);
             }
         }
+    }
+
+    private void ShootBullet(Vector2 direction)
+    {
+        GameObject bulletObject = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+        Bullet bullet = bulletObject.GetComponent<Bullet>();
+        if (bullet == null)
+        {
+            Debug.LogError("PlayerAttack: Bullet префабында Bullet компоненті жоқ.", bulletObject);
+            Destroy(bulletObject);
+            return;
+        }
+
+        bullet.Setup(direction, bulletDamage);
     }
 
     private IEnumerator DealSpecialDamage()
