@@ -1,62 +1,141 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerAttack : MonoBehaviour
 {
-    [Header("Attack Settings")]
-    [SerializeField] private GameObject bulletPrefab; // Оқтың префабы (Bullet)
-    [SerializeField, Min(0f)] private float fireRate = 0.005f;
-    private float nextFireTime;
+    [Header("Melee Attack")]
+    [SerializeField, Min(0f)] private float attackCooldown = 0.5f;
+    [SerializeField, Min(0f)] private float hitDelay = 0.1f;
+    [SerializeField, Min(1)] private int damage = 100;
+    [SerializeField, Min(0f)] private float attackReach = 1.2f;
+    [SerializeField, Min(0f)] private float attackRadius = 1.1f;
+
+    [Header("Special Attack")]
+    [SerializeField, Min(0f)] private float specialCooldown = 10f;
+    [SerializeField, Min(0f)] private float specialHitDelay = 0.45f;
+    [SerializeField, Min(0f)] private float specialRadius = 5f;
+    [SerializeField, Min(1)] private int specialDamage = 250;
+
+    private Animator animator;
+    private SpriteRenderer spriteRenderer;
+    private Camera mainCamera;
+    private float nextAttackTime;
+    private float nextSpecialTime;
+    private const string AttackState = "Base Layer.Attack";
+    private const string SpecialState = "Base Layer.Special";
+
+    public int Damage => damage;
+    public float SpecialCooldownRemaining => Mathf.Max(0f, nextSpecialTime - Time.time);
+
+    public void UpgradeDamage(int amount)
+    {
+        damage += Mathf.Max(0, amount);
+    }
+
+    public void RestoreDamage(int savedDamage)
+    {
+        damage = Mathf.Max(1, savedDamage);
+    }
+
+    private void Awake()
+    {
+        animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        mainCamera = Camera.main;
+    }
 
     private void Update()
     {
+        if (Keyboard.current != null && Keyboard.current.qKey.wasPressedThisFrame &&
+            Time.time >= nextSpecialTime)
+        {
+            nextSpecialTime = Time.time + specialCooldown;
+            if (animator != null)
+            {
+                animator.Play(SpecialState, 0, 0f);
+            }
+
+            StartCoroutine(DealSpecialDamage());
+        }
+
         if (Mouse.current != null &&
             Mouse.current.leftButton.wasPressedThisFrame &&
-            Time.time >= nextFireTime)
+            Time.time >= nextAttackTime)
         {
-            ShootAtMousePosition();
-            nextFireTime = Time.time + fireRate;
+            Vector2 direction = GetMouseDirection();
+            if (direction.sqrMagnitude == 0f)
+            {
+                return;
+            }
+
+            if (spriteRenderer != null && Mathf.Abs(direction.x) > 0.01f)
+            {
+                spriteRenderer.flipX = direction.x < 0f;
+            }
+
+            if (animator != null)
+            {
+                animator.Play(AttackState, 0, 0f);
+            }
+
+            nextAttackTime = Time.time + attackCooldown;
+            StartCoroutine(DealMeleeDamage(direction));
         }
     }
 
-    private void ShootAtMousePosition()
+    private Vector2 GetMouseDirection()
     {
-        if (bulletPrefab == null)
+        if (mainCamera == null)
         {
-            Debug.LogError("PlayerAttack: Inspector-да Bullet Prefab салынбаған!");
-            return;
+            Debug.LogError("PlayerAttack: Main Camera табылмады.");
+            return Vector2.zero;
         }
 
-        Camera mainCam = Camera.main;
-        if (mainCam == null)
-        {
-            Debug.LogError("Main Camera табылмады! Камераның Tag-ін 'MainCamera' деп қойыңыз.");
-            return;
-        }
-
-        Ray mouseRay = mainCam.ScreenPointToRay(Mouse.current.position.ReadValue());
+        Ray mouseRay = mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
         Plane playerPlane = new Plane(Vector3.forward, transform.position);
         if (!playerPlane.Raycast(mouseRay, out float distance))
         {
-            return;
+            return Vector2.zero;
         }
 
-        Vector3 direction = (mouseRay.GetPoint(distance) - transform.position).normalized;
-        if (direction.sqrMagnitude == 0f)
-        {
-            return;
-        }
+        Vector3 target = mouseRay.GetPoint(distance);
+        Vector2 direction = (Vector2)(target - transform.position);
+        return direction.sqrMagnitude > 0f ? direction.normalized : Vector2.zero;
+    }
 
-        GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
-        Bullet bulletScript = bullet.GetComponent<Bullet>();
-        if (bulletScript != null)
+    private IEnumerator DealMeleeDamage(Vector2 direction)
+    {
+        yield return new WaitForSeconds(hitDelay);
+
+        Vector2 hitCenter = (Vector2)transform.position + direction * attackReach;
+        Collider2D[] hits = Physics2D.OverlapCircleAll(hitCenter, attackRadius);
+        var damagedEnemies = new HashSet<RangedEnemy>();
+
+        foreach (Collider2D hit in hits)
         {
-            bulletScript.Setup(direction);
+            RangedEnemy enemy = hit.GetComponentInParent<RangedEnemy>();
+            if (enemy != null && damagedEnemies.Add(enemy))
+            {
+                enemy.TakeDamage(damage);
+            }
         }
-        else
+    }
+
+    private IEnumerator DealSpecialDamage()
+    {
+        yield return new WaitForSeconds(specialHitDelay);
+
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, specialRadius);
+        var damagedEnemies = new HashSet<RangedEnemy>();
+        foreach (Collider2D hit in hits)
         {
-            Debug.LogError("PlayerAttack: Bullet Prefab ішінде Bullet скрипті жоқ!");
-            Destroy(bullet);
+            RangedEnemy enemy = hit.GetComponentInParent<RangedEnemy>();
+            if (enemy != null && damagedEnemies.Add(enemy))
+            {
+                enemy.TakeDamage(specialDamage);
+            }
         }
     }
 }

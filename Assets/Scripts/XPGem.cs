@@ -6,10 +6,10 @@ public class XPGem : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.name == "Player" || collision.CompareTag("Player"))
+        PlayerStats playerStats = collision.GetComponentInParent<PlayerStats>();
+        if (playerStats != null)
         {
-            // Ойыншының ішінен PlayerStats скриптін тауып, XP қосу
-            collision.GetComponent<PlayerStats>().AddXP(xpValue);
+            playerStats.AddXP(xpValue + playerStats.WaveXPBonusPerGem);
             Destroy(gameObject);
         }
     }

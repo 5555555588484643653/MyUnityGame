@@ -240,8 +240,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98d031e46b473fb4c9e89268d74bf4cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAttack
-  bulletPrefab: {fileID: 3993538545085373010, guid: 992dcdeb3d476074e8c5e42d314050c4, type: 3}
-  fireRate: 1
+  attackCooldown: 0.5
+  hitDelay: 0.1
+  damage: 100
+  attackReach: 1.2
+  attackRadius: 1.1
 --- !u!50 &182249032
 Rigidbody2D:
   serializedVersion: 5

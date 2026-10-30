@@ -376,6 +376,7 @@ GameObject:
   - component: {fileID: 182249033}
   - component: {fileID: 182249032}
   - component: {fileID: 182249034}
+  - component: {fileID: 900000000}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -483,8 +484,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98d031e46b473fb4c9e89268d74bf4cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAttack
-  bulletPrefab: {fileID: 3993538545085373010, guid: 992dcdeb3d476074e8c5e42d314050c4, type: 3}
-  fireRate: 0.005
+  attackCooldown: 0.5
+  hitDelay: 0.1
+  damage: 100
+  attackReach: 1.2
+  attackRadius: 1.1
 --- !u!50 &182249032
 Rigidbody2D:
   serializedVersion: 5
@@ -573,7 +577,7 @@ MonoBehaviour:
   currentLevel: 1
   currentXP: 0
   xpToNextLevel: 5
-  xpBar: {fileID: 1290413599}
+  healthBar: {fileID: 1290413599}
   maxHealth: 100
 --- !u!1 &343235568
 GameObject:
@@ -1674,7 +1678,7 @@ GameObject:
   - component: {fileID: 1290413598}
   - component: {fileID: 1290413599}
   m_Layer: 5
-  m_Name: XPBar
+  m_Name: HealthBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2373,3 +2377,23 @@ SceneRoots:
   - {fileID: 785918493}
   - {fileID: 1691222095}
   - {fileID: 165830911}
+
+--- !u!95 &900000000
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 182249027}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: b4dbe790cc36c2e40b32ae2303d5a31d, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage:
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
